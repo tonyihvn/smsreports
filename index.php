@@ -128,8 +128,8 @@ if (isset($_POST['logout'])) {
     Please wait while loading data...
 </div>
 <div class="row justify-content-lg-end">
-    <a href="/index.php" class="btn btn-sm btn-primary col-sm-2">Home</a>
-    <a href="/load-local.php" class="btn btn-sm btn-info col-sm-2">Analysis</a>
+    <a href="index.php" class="btn btn-sm btn-primary col-sm-2">Home</a>
+    <a href="load-local.php" class="btn btn-sm btn-info col-sm-2">Analysis</a>
      <!-- Logout button -->
      <form method="post" class="col-sm-2">
         <input type="submit" name="logout" value="Logout" class="btn btn-sm btn-danger">
