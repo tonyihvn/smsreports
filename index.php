@@ -18,6 +18,12 @@ if (isset($_POST['logout'])) {
     header("Location: login.php");
     exit();
 }
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -67,8 +73,6 @@ if (isset($_POST['logout'])) {
         return null;
     }
 
-    require_once('vendor/autoload.php');
-
     $client = new \GuzzleHttp\Client();
     $pageNumber = isset($_GET['pageNumber']) ? intval($_GET['pageNumber']) : 1;
 
@@ -76,10 +80,11 @@ if (isset($_POST['logout'])) {
     $jsonData = loadFromJsonFile();
 
     if (!$jsonData) {
+        $authorization = $_ENV['smslive247_auth'];
         // If data doesn't exist in the file, fetch it from the API
         $response = $client->request('GET', 'https://api.smslive247.com/api/v4/sms?PageNumber=' . $pageNumber . '&PageSize=500', [
             'headers' => [
-                'Authorization' => '',
+                'Authorization' =>$authorization,
                 'accept' => 'application/json',
             ],
             'timeout' => 60,
@@ -90,10 +95,11 @@ if (isset($_POST['logout'])) {
         // Save fetched data to the JSON file
         saveToJsonFile($jsonData);
     } else {
+        $authorization = $_ENV['smslive247_auth'];
         // Data exists in the file; check for updates
         $response = $client->request('GET', 'https://api.smslive247.com/api/v4/sms?PageNumber=' . $pageNumber . '&PageSize=500', [
             'headers' => [
-                'Authorization' => '',
+                'Authorization' =>$authorization,
                 'accept' => 'application/json',
             ],
             'timeout' => 60,
@@ -130,6 +136,7 @@ if (isset($_POST['logout'])) {
 <div class="row justify-content-lg-end">
     <a href="index.php" class="btn btn-sm btn-primary col-sm-2">Home</a>
     <a href="load-local.php" class="btn btn-sm btn-info col-sm-2">Analysis</a>
+    <a href="defaulters.php" class="btn btn-sm btn-warning col-sm-2">Facility Status</a>
      <!-- Logout button -->
      <form method="post" class="col-sm-2">
         <input type="submit" name="logout" value="Logout" class="btn btn-sm btn-danger">
@@ -653,11 +660,11 @@ if (isset($_POST['logout'])) {
         function loadData(pageNumber) {
             $('#loading-overlay').show();
             var url = 'https://api.smslive247.com/api/v4/sms?PageNumber=' + pageNumber + '&PageSize=500';
-
+            var authorization ="<?php echo $_ENV['smslive247_auth']; ?>";
             $.ajax({
                 url: url,
                 headers: {
-                    'Authorization': '',
+                    'Authorization':authorization,
                     'accept': 'application/json'
                 },
                 timeout: 60000,

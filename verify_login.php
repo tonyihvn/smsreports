@@ -1,9 +1,15 @@
 <?php
 session_start();
+require_once __DIR__ . '/vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$login_password = $_ENV['login_password'];
+$userName = $_ENV['userName'];
 // Sample hardcoded credentials (replace these with actual credentials)
-$validUsername = "user";
-$validPassword = '';
+$validUsername =$userName;
+$validPassword =$login_password;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];

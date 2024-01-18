@@ -53,57 +53,57 @@ if (isset($_POST['logout'])) {
     <a href="index.php" class="btn btn-sm btn-primary col-sm-2">Home</a>
     <a href="load-local.php" class="btn btn-sm btn-info col-sm-2">Analysis</a>
     <a href="defaulters.php" class="btn btn-sm btn-warning col-sm-2">Facility Status</a>
+
      <!-- Logout button -->
      <form method="post" class="col-sm-2">
         <input type="submit" name="logout" value="Logout" class="btn btn-sm btn-danger">
     </form>
 </div>
 <hr>
-<h1 style="text-align: center">SMS Reminder Module - Analysis</h1>
-
-<div id="messagesChart"></div>
 
 <hr>
 
-<div class="row">
-    <div class="col-md-12">
-        <table id="datatable" class="display" style="width: 100%">
-            <thead>
-                <tr>
-                    <th>Facility Name</th>
-                    <th>Batch ID</th>
-                
-                    <th>Sender ID</th>
-                    <th>Message Text</th>
-                    <th>Mobile Number</th>
-                    <th>Submit Date</th>
-                    <th>Charged</th>
-                    <th>Status</th>
-                    
-                            
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-            <tfoot>
+<div class="row">  
+        <div class="col-md-6">
+            <h6 style="text-align: center">Facilities with no SMS this month: <span class="thisMonth"></span></h6>
+
+            <table id="noRecords" class="table table-striped noRecords" style="width: 90%; margin: auto;">
+                <thead>
                     <tr>
                         <th>Facility Name</th>
-                        <th>Batch ID</th>
-                    
-                        <th>Sender ID</th>
-                        <th>Message Text</th>
-                        <th>Mobile Number</th>
-                        <th>Submit Date</th>
-                        <th>Charged</th>
-                        <th>Status</th>
-                        
-                                
+                        <th>Date of Last SMS</th>
                     </tr>
-            </tfoot>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+                
+            </table>
+        </div>
 
-   
+        <div class="col-md-6">
+            <h6 style="text-align: center">Facilities that have Sent SMS this month: <span class="thisMonth"></span></h6>
+
+            <table id="sentMessages" class="table table-striped noRecords" style="width: 90%; margin: auto;">
+                <thead>
+                    <tr>
+                        <th>Facility Name</th>
+                        <th>Date of Last SMS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+                
+            </table>
+        </div>
+
 </div>
 
 
@@ -145,8 +145,20 @@ if (isset($_POST['logout'])) {
             
             var table;
 
+            $('.noRecords').DataTable({
+                            pageLength: 100,
+                            searching: true,
+                            dom: 'Bfrtip', 
+                            buttons: [
+                                'copy', 'csv', 'excel', 'pdf', 'print'
+                            ],
+                            initComplete: function () {
+                                $('#loading-overlay').hide();
+                            }
+                        });
+
             // Mapping Facilities to DatimCodes
-            facilityCodeMap = 
+            let facilityCodeMap = 
             {   "Asokoro District Hospital": "wp753KYAdno",
                 "Azriel Hosptial Lugbe": "ZDD57v5qRpA",
                 "Bethel Clinic and Maternity": "RYVTvf4hkWx",
@@ -610,186 +622,109 @@ if (isset($_POST['logout'])) {
                 "Isiokpo General Hospital": "XFDJkiGqk2X"
             }
 
-            function loadData(data) {
-                $('#loading-overlay').show();
-                
-                if (data && data.length > 0) {
+            // let flippedFacilityCodeMap = {};
+            // for (let key in facilityCodeMap) {
+            //     let value = facilityCodeMap[key];
+            //     flippedFacilityCodeMap[value] = key;
+            // }
 
-                    if (table) {
-                        table.clear().rows.add(data).draw();
-                    } else {
-                        // ... (existing DataTable initialization code)
-                        $('#datatable thead tr').clone(true).appendTo('#datatable thead');
+            // console.log(flippedFacilityCodeMap);
 
-                        $('#datatable thead tr:eq(1) th:not(:last)').each(function(i) {
-                            var title = $(this).text();
-                            $(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" value="" />');
+            function getFacilityName(lastElevenChars) {
+                const facilityName = Object.keys(facilityCodeMap).find(key => facilityCodeMap[key] === lastElevenChars);
+                return facilityName || 'Unknown';
+            }
+            const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+            var thisMonth = document.getElementsByClassName('thisMonth');
 
-                            $('input', this).on('keyup change', function() {
-                                if (table.column(i).search() !== this.value) {
-                                    table
-                                        .column(i)
-                                        .search(this.value)
-                                        .draw();
-                                }
-                            });
-                        });
+            for (var i = 0; i < thisMonth.length; i++) {
+                var thispMonth = thisMonth[i];
+                // Assign a value, for example, set the innerHTML
+                thispMonth.innerHTML = currentMonth;
+            }
+            
+
+            function processFacilities(data) {
+                const uniqueFacilityNames = new Set();
+                const goodGuys = {};
+                const facilityLastSubmitDate = {};
+
+                // Populate facilityLastSubmitDate with data entries
+                data.forEach(entry => {
+                    const lastElevenChars = entry.messageText.slice(-11);
+                    const facilityName = getFacilityName(lastElevenChars);
+
+                    const monthFromSubmitDate = new Date(entry.submitDate).getMonth();
+                    const currentMonth = new Date().getMonth();
+
+                        if (monthFromSubmitDate === currentMonth) {
+                            goodGuys[facilityName] = entry.submitDate;
+                        }                      
+                                        
+                });
+
+
+                // Populate facilityLastSubmitDate with data entries
+                data.forEach(entry => {
+                    const lastElevenChars = entry.messageText.slice(-11);
+                    const facilityName = getFacilityName(lastElevenChars);
+
+                    const monthFromSubmitDate = new Date(entry.submitDate).getMonth();
+                    const currentMonth = new Date().getMonth();
+
+                        if(!(Object.keys(goodGuys).includes(facilityName))){
+                            if (monthFromSubmitDate !== currentMonth) {
+                                facilityLastSubmitDate[facilityName] = entry.submitDate;
+                            } 
+                        }                      
+                                        
+                });
+
+                // Add facilities from facilityCodeMap that are not in data
+                for (const facilityName in facilityCodeMap) {
                         
-                        table = $('#datatable').DataTable({
-                            data: data,
-                            "columns": [
-                                        { 
-                                            data: function (row) {
-                                                // Get the last eleven characters of messageText and map to facility code
-                                                var lastElevenChars = row.messageText.slice(-11);
-                                                var facilityName = Object.keys(facilityCodeMap).find(key => facilityCodeMap[key] === lastElevenChars);
-                                                return facilityName || 'Unknown'; // Default value if no mapping found
-                                            }
-                                        },
-                                        { data: 'batchID' },
-                                        // { data: 'messageID' },
-                                        { data: 'senderID' },
-                                        {
-                                            data: function (row) {
-                                                // Trim off the last thirteen characters from messageText
-                                                return row.messageText.slice(0, -13);
-                                            }
-                                        },
-                                        { data: 'mobileNumber' },
-                                        { data: 'submitDate' },
-                                        { data: 'charged' },
-                                        { data: 'reports[0].status' },
-                                        // { data: 'reports[0].smscID' },
-                                        // { data: 'reports[0].reportDate' }                
-                                    ],
-                                    
-                            pageLength: 100,
-                            searching: true,
-                            dom: 'Bfrtip', 
-                            buttons: [
-                                'copy', 'csv', 'excel', 'pdf', 'print'
-                            ],
-                            initComplete: function () {
-                                $('#loading-overlay').hide();
-                            }
-                        });
-                        
+                    if (!(facilityName in facilityLastSubmitDate)) {
+                        // facilityLastSubmitDate[facilityName] = 'Not Available';
+                         // If the facility is not in data, find the last submit date from data
+                        const facilityCode = facilityCodeMap[facilityName];
+                        const facilityEntries = data.filter(entry => entry.messageText.includes(facilityCode));
+                        const lastSubmitDate = facilityEntries.length > 0 ? facilityEntries[facilityEntries.length - 1].submitDate : 'None';
+                        if(!(Object.keys(goodGuys).includes(facilityName))){
+                            facilityLastSubmitDate[facilityName] = lastSubmitDate;
+                        }
                     }
-                    $('#loading-overlay').hide();
-                } else {
-                    $('#loading-overlay').hide();
-                    console.error('No data available.');
+                }
+
+
+                // Select the table using its ID
+                const table = document.getElementById('noRecords');
+                const goodTable = document.getElementById('sentMessages');
+
+             
+
+                // Populate the table
+                for (const facilityName in facilityLastSubmitDate) {
+                    const row = table.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+
+                    cell1.textContent = facilityName;
+                    cell2.textContent = facilityLastSubmitDate[facilityName];
+                }
+
+                // Populate the table
+                for (const facilityName in goodGuys) {
+                    const row = goodTable.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+
+                    cell1.textContent = facilityName;
+                    cell2.textContent = goodGuys[facilityName];
                 }
             }
 
-            // Load initial data
-            loadData(data);
-
-            // Count messages per month, status, and facility
-            const counts = {};
-
-            data.forEach(entry => {
-                const monthYear = new Date(entry.submitDate).toLocaleString('default', { month: 'long', year: 'numeric' });
-                const status = entry.reports[0].status;
-                const facilityCode = entry.messageText.slice(-11);
-
-                const key = `${monthYear}-${status}`;
-
-                if (!counts[key]) {
-                    counts[key] = {
-                        total: 1,
-                        facilities: {
-                            [facilityCode]: {
-                                facilityName: Object.keys(facilityCodeMap).find(key => facilityCodeMap[key] === facilityCode) || 'Unknown',
-                                statuses: [status]
-                            }
-                        }
-                    };
-                } else {
-                    counts[key].total++;
-
-                    if (!counts[key].facilities[facilityCode]) {
-                        counts[key].facilities[facilityCode] = {
-                            facilityName: Object.keys(facilityCodeMap).find(key => facilityCodeMap[key] === facilityCode) || 'Unknown',
-                            statuses: [status]
-                        };
-                    } else {
-                        counts[key].facilities[facilityCode].statuses.push(status);
-                    }
-                }
-            });
-
-            // Organize data for Highchart
-            const seriesData = Object.keys(counts).map(key => {
-                const [monthYear, status] = key.split('-');
-                return {
-                    name: monthYear,
-                    stack: status,
-                    y: counts[key].total,
-                    drilldown: key
-                };
-            });
-
-            // Extract unique statuses
-            const statuses = [...new Set(data.map(entry => entry.reports[0].status))];
-
-            // Create drilldown data
-            const drilldownData = statuses.map(status => ({
-                id: status,
-                name: status,
-                data: Object.keys(counts).map(key => {
-                    const [monthYear, drilldownStatus] = key.split('-');
-                    return {
-                        name: monthYear,
-                        y: counts[key].facilities[facilityCodeMap[Object.keys(counts[key].facilities)[0]]] ? counts[key].facilities[facilityCodeMap[Object.keys(counts[key].facilities)[0]]].statuses.length : 0,
-                        drilldown: key
-                    };
-                })
-            }));
-
-            // Create Highchart
-            Highcharts.chart('messagesChart', {
-                chart: {
-                    type: 'column'
-                },
-                title: {
-                    text: 'Messages Sent per Month and Status'
-                },
-                xAxis: {
-                    categories: [...new Set(seriesData.map(entry => entry.name))],
-                    title: {
-                        text: 'Month/Year'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Messages Count'
-                    }
-                },
-                series: statuses.map(status => ({
-                    name: status,
-                    data: seriesData.filter(entry => entry.stack === status).map(entry => entry.y),
-                    drilldown: status
-                })),
-                drilldown: {
-                    series: drilldownData
-                },
-                plotOptions: {
-                    series: {
-                        point: {
-                            events: {
-                                click: function () {
-                                    // Handle click event
-                                    if (this.drilldown) {
-                                        alert(`Facilities for ${this.name}: ${counts[this.drilldown].facilities[facilityCodeMap[Object.keys(counts[this.drilldown].facilities)[0]]].statuses.join(', ')}`);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
+            // Call the function to populate the table
+            processFacilities(data);
             
         });
     </script>

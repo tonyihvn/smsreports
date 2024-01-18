@@ -1,6 +1,7 @@
 {
     "require": {
         "guzzlehttp/guzzle": "^7.8",
-        "datatables/datatables": "^1.10"
+        "datatables/datatables": "^1.10",
+        "vlucas/phpdotenv": "^5.6"
     }
 }

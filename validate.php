@@ -1,10 +1,18 @@
 <?php
 
+require_once __DIR__ . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$info_bipapiKey = $_ENV['info_bipapiKey'];
+$infobipauth = $_ENV['infobipauth'];
+
 $apiEndpoint = "https://dddd8.api.infobip.com/mi/verification/1/verify";
 
 // Your Infobip API Key
-$apiKey = '';
-$auth = "";
+$apiKey =$info_bipapiKey;
+$auth =$infobipauth;
 // Phone number to validate
 $phoneNumber = "2347067973091";
 
