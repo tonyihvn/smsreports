@@ -103,12 +103,16 @@ if (isset($_POST['logout'])) {
     </div>
 
     <div class="col-md-2">
-        <h1>Facilities With no message this month</h1>
+        <h6>Facilities with no SMS this month</span></h6>
 
-    <div id="noRecordsTable">
+        <table id="noRecords">
+            <tr>
+                <th>Facility Name</th>
+            </tr>
+            
+        </table>
 
-    </div>
-
+   
     </div>
 </div>
 
@@ -796,25 +800,38 @@ if (isset($_POST['logout'])) {
                 }
             });
 
-            // Display facilities with no records for the current month
-            const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-            const facilitiesWithNoRecords = Object.keys(facilityCodeMap)
-                .filter(facilityCode => !counts[`${currentMonth}-DELIVRD`]?.facilities[facilityCode]);
-                
-            // Create a table to display facilities with no records
-            const noRecordsTable = document.getElementById('noRecordsTable');
-            const tableHTML = `<table border="1">
-                                <tr>
-                                    
-                                    <th>Facility Name</th>
-                                </tr>
-                                ${facilitiesWithNoRecords.map(facilityCode => `
-                                    <tr>
-                                        
-                                        <td>${facilityCodeMap[facilityCode]}</td>
-                                    </tr>`).join('')}
-                            </table>`;
-            noRecordsTable.innerHTML = tableHTML;
+            function getFacilityName(lastElevenChars) {
+                const facilityName = Object.keys(facilityCodeMap).find(key => facilityCodeMap[key] === lastElevenChars);
+                return facilityName || 'Unknown';
+            }
+
+            function processFacilities(data) {
+                const uniqueFacilityNames = new Set();
+
+                data.forEach(entry => {
+                    const lastElevenChars = entry.messageText.slice(-11);
+                    const facilityName = getFacilityName(lastElevenChars);
+
+                    const monthFromSubmitDate = new Date(entry.submitDate).getMonth();
+                    const currentMonth = new Date().getMonth();
+
+                    if (monthFromSubmitDate !== currentMonth) {
+                        uniqueFacilityNames.add(facilityName);
+                    }
+                });
+
+                // Select the table using its ID
+                const table = document.getElementById('noRecords');
+
+                uniqueFacilityNames.forEach(facilityName => {
+                    const row = table.insertRow();
+                    const cell1 = row.insertCell(0);
+                    cell1.textContent = facilityName;
+                });
+            }
+
+            // Call the function to populate the table
+            processFacilities(data);
             
         });
     </script>

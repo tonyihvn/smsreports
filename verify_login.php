@@ -3,7 +3,7 @@ session_start();
 
 // Sample hardcoded credentials (replace these with actual credentials)
 $validUsername = "user";
-$validPassword = '$2y$10$XJ2RWuZLnVh1Rb8sM8Ntdux6tafUH7k0vk9WPlhgyvRlCO1qmUlZS';
+$validPassword = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];

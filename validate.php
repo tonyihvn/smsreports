@@ -3,8 +3,8 @@
 $apiEndpoint = "https://dddd8.api.infobip.com/mi/verification/1/verify";
 
 // Your Infobip API Key
-$apiKey = '17318259433dcc3ae556b63648711c17-b6f9ec97-b3b8-4b37-a00a-08ba733a7dde';
-$auth = "tonyihvn:@@8610Prayer22";
+$apiKey = '';
+$auth = "";
 // Phone number to validate
 $phoneNumber = "2347067973091";
 

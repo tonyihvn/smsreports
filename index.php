@@ -79,7 +79,7 @@ if (isset($_POST['logout'])) {
         // If data doesn't exist in the file, fetch it from the API
         $response = $client->request('GET', 'https://api.smslive247.com/api/v4/sms?PageNumber=' . $pageNumber . '&PageSize=500', [
             'headers' => [
-                'Authorization' => 'MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f',
+                'Authorization' => '',
                 'accept' => 'application/json',
             ],
             'timeout' => 60,
@@ -93,7 +93,7 @@ if (isset($_POST['logout'])) {
         // Data exists in the file; check for updates
         $response = $client->request('GET', 'https://api.smslive247.com/api/v4/sms?PageNumber=' . $pageNumber . '&PageSize=500', [
             'headers' => [
-                'Authorization' => 'MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f',
+                'Authorization' => '',
                 'accept' => 'application/json',
             ],
             'timeout' => 60,
@@ -657,7 +657,7 @@ if (isset($_POST['logout'])) {
             $.ajax({
                 url: url,
                 headers: {
-                    'Authorization': 'MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f',
+                    'Authorization': '',
                     'accept': 'application/json'
                 },
                 timeout: 60000,

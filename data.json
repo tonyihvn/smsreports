@@ -12498,9 +12498,9 @@
         "charged": 2,
         "reports": [
             {
-                "status": "ACCEPTD",
+                "status": "REJECTD",
                 "smscID": "C036940E",
-                "reportDate": null
+                "reportDate": "2024-01-17T14:07:00Z"
             }
         ]
     },
@@ -12658,9 +12658,9 @@
         "charged": 2,
         "reports": [
             {
-                "status": "ACCEPTD",
+                "status": "REJECTD",
                 "smscID": "C0369169",
-                "reportDate": null
+                "reportDate": "2024-01-17T14:07:00Z"
             }
         ]
     },
